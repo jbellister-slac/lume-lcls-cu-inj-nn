@@ -1,9 +1,12 @@
 FROM condaforge/mambaforge AS build
 
+RUN apt-get update && \
+    apt-get install -y gcc git build-essential
+
 COPY environment.yml /lume-lcls-cu-inj-nn/environment.yml
 
-RUN conda install -c conda-forge conda-pack && \
-  conda env create -f /lume-lcls-cu-inj-nn/environment.yml
+RUN mamba install -c conda-forge conda-pack && \
+  mamba env create -f /lume-lcls-cu-inj-nn/environment.yml
 
 # Use conda-pack to create a  enviornment in /venv:
 RUN conda-pack -n lume-lcls-cu-inj-nn -o /tmp/env.tar && \
@@ -22,6 +25,9 @@ ENV PATH="${PATH}:/venv/bin"
 
 # Copy /venv from the previous stage:
 COPY --from=build /venv /venv
+
+COPY lume_lcls_cu_inj_nn/flow.py /opt/prefect/lume_lcls_cu_inj_nn/flow.py
+
 COPY . /lume-lcls-cu-inj-nn
 
 SHELL ["/bin/bash", "-c"] 
@@ -37,7 +43,7 @@ RUN chmod +x /usr/local/bin/_entrypoint.sh
 RUN source /venv/bin/activate && \
   python -m pip install /lume-lcls-cu-inj-nn
 
-RUN echo 'source /venv/bin/activate' >> $HOME/.bashrc
+WORKDIR /opt/prefect
 
 # When image is run, run the code with the environment
 # activated:

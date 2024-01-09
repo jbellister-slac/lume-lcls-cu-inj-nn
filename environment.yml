@@ -2,12 +2,11 @@ name: lume-lcls-cu-inj-nn
 channels:
   - conda-forge
 dependencies:
-  - prefect<2.0 # until lume-services registered with conda
-  - docker-py>=5.0  # until lume-services registered with conda
+  - prefect # until lume-services registered with conda
+  - docker-py>=5.0 # until lume-services registered with conda
   - tensorflow
   - keras
-  - lume-model>=1.6.0
-  - pydantic==1.10.9
+  - pydantic
   - botorch>=0.8.2
   - ipywidgets
   - tqdm
@@ -18,4 +17,5 @@ dependencies:
   - nb_conda_kernels
   - pip 
   - pip: 
-    - git+https://github.com/slaclab/lume-services.git@main
+    - git+https://github.com/slaclab/lume-model.git
+    - git+https://github.com/jbellister-slac/lume-services.git@prefect_2

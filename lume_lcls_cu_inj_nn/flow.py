@@ -46,20 +46,14 @@ def format_result(
 
 
 @task()
-def evaluate(formatted_input_vars, lume_module):
-    all_input_values = []
+def evaluate(formatted_input_vars, lume_model):
     logger = get_run_logger()
-    for key in formatted_input_vars:
-        all_input_values.append(formatted_input_vars[key])
-
-    all_input_values = torch.Tensor([all_input_values])
-    with torch.no_grad():
-        predictions = lume_module(all_input_values)
-    logger.info('Predictions - ', predictions)
+    predictions = lume_model.evaluate(formatted_input_vars)
+    logger.info(f'Predictions - {predictions}')
     return predictions
 
 
-#TODO HIGH: Renable
+#TODO: Save result
 #save_db_result_task = SaveDBResult()
 
 
@@ -67,7 +61,9 @@ def evaluate(formatted_input_vars, lume_module):
 def load_input(var_name, parameter):
     # Confirm Inputs are Correctly Loaded!
     logger = get_run_logger()
-    logger.info('Loaded ', str(var_name), ' with value - ', parameter)
+    if parameter.value is None:
+        parameter.value = parameter.default
+    logger.info(f'Loaded {var_name} with value {parameter}')
     return parameter
 
 
@@ -103,14 +99,16 @@ def lume_lcls_cu_inj_nn_flow():
 
     print('Reached Here with TORCH MODEL PATH - ', TORCH_MODEL_PATH)
     print(os.listdir())
-    
+  
+    saved_torch_model = torch.load(TORCH_MODEL_PATH+"model.pt")  
     input_transformer = torch.load(TORCH_MODEL_PATH+"input_transformer.pt")
     output_transformer = torch.load(TORCH_MODEL_PATH+"output_transformer.pt")
-    input_variables_names, output_variables_names = variables_from_yaml(open(TORCH_MODEL_PATH+"variables.yml"))
+    input_variables_names, output_variables_names = variables_from_yaml(TORCH_MODEL_PATH+"variables.yml")
 
     # create lume model
+  
     lume_model = TorchModel(
-        model_file=TORCH_MODEL_PATH+"model.pt",
+        model=saved_torch_model,
         input_variables=input_variables_names,
         output_variables=output_variables_names,
         input_transformers=[input_transformer],
@@ -120,7 +118,7 @@ def lume_lcls_cu_inj_nn_flow():
         model=lume_model
     )
 
-    output_variables = evaluate(input_variable_parameter_dict, lume_module)
+    output_variables = evaluate(input_variable_parameter_dict, lume_model)
 
     print(f'Result: {output_variables}')
 
@@ -140,3 +138,6 @@ def lume_lcls_cu_inj_nn_flow():
 
 def get_flow():
     return flow
+
+if __name__ == '__main__':
+    lume_lcls_cu_inj_nn_flow.serve(name="lume-nn-test")

@@ -1,76 +1,12 @@
 import copy
 from typing import Dict
-from lume_model.models import KerasModel
 from lume_model.variables import InputVariable, OutputVariable
 
 from lume_lcls_cu_inj_nn import INPUT_VARIABLES, OUTPUT_VARIABLES
 from lume_lcls_cu_inj_nn.files import MODEL_FILE
-import keras
 import numpy as np
 
-# to lume-keras
-class ScaleLayer(keras.layers.Layer):
-    
-    trainable = False
-    
-    def __init__(self, offset, scale, lower,upper, **kwargs): 
-        super(ScaleLayer, self).__init__(**kwargs) 
-        self.scale = scale
-        self.offset = offset
-        self.lower = lower
-        self.upper = upper
-        
-    def call(self, inputs):
-        return self.lower+((inputs-self.offset)*(self.upper-self.lower)/self.scale)
-    
-    
-    # MUST OVERRIDE IN ORDER TO SAVE + LOAD W/KERAS
-    # STORE SALE, etc.
-    def get_config(self):
-        return {'scale': self.scale,'offset': self.offset,'lower': self.lower,'upper': self.upper}
-
-# to lume-keras
-class UnScaleLayer(keras.layers.Layer):
-    
-    trainable = False
-    
-    def __init__(self, offset, scale, lower,upper, **kwargs): 
-        super(UnScaleLayer, self).__init__(**kwargs) 
-        self.scale = scale
-        self.offset = offset
-        self.lower = lower
-        self.upper = upper
-        
-    def call(self, inputs):
-        return (((inputs-self.lower)*self.scale)/(self.upper-self.lower)) + self.offset
-    
-    
-    # MUST OVERRIDE IN ORDER TO SAVE + LOAD W/KERAS
-    # STORE SALE, etc.
-    def get_config(self):
-        return {'scale': self.scale,'offset': self.offset,'lower': self.lower,'upper': self.upper}
-
-# To lume-keras
-class UnScaleImg(keras.layers.Layer):
-    
-    trainable = False
-    
-    def __init__(self, img_offset, img_scale, **kwargs): 
-        super(UnScaleImg, self).__init__(**kwargs) 
-        self.img_scale = img_scale
-        self.img_offset = img_offset
-        
-    def call(self, inputs):
-        return (inputs+self.img_offset)*self.img_scale  
-    
-    
-    # MUST OVERRIDE IN ORDER TO SAVE + LOAD W/KERAS
-    # STORE SALE, etc.
-    def get_config(self):
-        return {'img_scale': self.img_scale,'img_offset': self.img_offset}
-
-
-class LCLSCuInjNN(KerasModel):
+class LCLSCuInjNN():
         
     def __init__(self):
         """Initialize the model. If additional settings are required, they can be 
@@ -79,13 +15,7 @@ class LCLSCuInjNN(KerasModel):
         data files, etc.
         
         """
-        super().__init__(
-            model_file=MODEL_FILE,
-            input_variables=INPUT_VARIABLES,
-            output_variables=OUTPUT_VARIABLES,
-            custom_layers={"ScaleLayer": ScaleLayer, "UnScaleLayer": UnScaleLayer, "UnScaleImg": UnScaleImg},
-            output_format={"type": "softmax"}
-        )
+        print('hi')
 
     # EVALUATE implemented on KerasModel base class
     def format_input(self, input_dictionary):
