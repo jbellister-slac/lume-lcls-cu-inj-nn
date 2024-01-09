@@ -1,7 +1,6 @@
 import copy
 from typing import Dict
-from lume_model.keras import KerasModel
-from lume_model.models import BaseModel
+from lume_model.models import KerasModel
 from lume_model.variables import InputVariable, OutputVariable
 
 from lume_lcls_cu_inj_nn import INPUT_VARIABLES, OUTPUT_VARIABLES
@@ -81,11 +80,11 @@ class LCLSCuInjNN(KerasModel):
         
         """
         super().__init__(
-            model_file = MODEL_FILE,
-            input_variables = INPUT_VARIABLES,
-            output_variables = OUTPUT_VARIABLES,
+            model_file=MODEL_FILE,
+            input_variables=INPUT_VARIABLES,
+            output_variables=OUTPUT_VARIABLES,
             custom_layers={"ScaleLayer": ScaleLayer, "UnScaleLayer": UnScaleLayer, "UnScaleImg": UnScaleImg},
-            output_format = {"type": "softmax"}
+            output_format={"type": "softmax"}
         )
 
     # EVALUATE implemented on KerasModel base class
